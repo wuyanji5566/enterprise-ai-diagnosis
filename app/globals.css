@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #0b1224;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    "Aptos", "Segoe UI Variable", "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #dce8ff;
+  color: #0b1224;
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8;
+  }
+
+  .section-space {
+    @apply py-20 sm:py-24 lg:py-28;
+  }
+
+  .section-heading {
+    @apply mx-auto max-w-3xl text-center;
+  }
+
+  .section-heading h2 {
+    @apply mt-5 text-3xl font-black tracking-[-0.04em] text-ink sm:text-4xl lg:text-5xl;
+  }
+
+  .section-heading p {
+    @apply mt-5 text-base leading-7 text-slate-500;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-blue-100 bg-brand-soft px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brand;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,.045)] transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_22px_55px_rgba(15,23,42,.08)];
+  }
+
+  .tag {
+    @apply inline-flex rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-bold text-brand;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-[15px] text-ink outline-none transition placeholder:text-slate-400 focus:border-brand focus:ring-4 focus:ring-blue-50;
+  }
+
+  .field-label {
+    @apply mb-2 block text-sm font-semibold text-slate-800;
+  }
+
+  .primary-button {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-100 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-blue-300;
+  }
+
+  .secondary-button {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 13mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0b1224 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  header,
+  footer,
+  .print-hide {
+    display: none !important;
+  }
+
+  .report-page,
+  .report-page .page-shell {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .print-cover {
+    display: flex !important;
+    min-height: 255mm;
+    flex-direction: column;
+    justify-content: space-between;
+    break-after: page;
+    padding: 18mm 8mm;
+  }
+
+  .print-cover dl div {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+  }
+
+  .print-cover dt {
+    color: #64748b;
+    font-weight: 700;
+  }
+
+  .print-cover dd {
+    margin: 0;
+    font-weight: 800;
+  }
+
+  .surface-card,
+  .report-page section {
+    break-inside: avoid;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .report-page section {
+    margin-top: 8mm !important;
+  }
+
+  .report-page p,
+  .report-page li,
+  .report-page dd {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .report-page a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}

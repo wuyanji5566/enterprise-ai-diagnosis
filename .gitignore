@@ -1,0 +1,19 @@
+.next
+node_modules
+.env
+.env.local
+.npm-cache
+npm-debug.log*
+*.tsbuildinfo
+data.db
+data.db-*
+
+# 本地设计审查与临时输出，不进入生产仓库
+outputs/
+qa-*.png
+completion-audit.md
+design-qa.md
+
+# 旧版备份 / 临时测试组件
+*.bak
+*_test_jsx.txt
