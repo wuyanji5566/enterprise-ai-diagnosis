@@ -7,6 +7,7 @@ import { matchServicePackage } from "@/lib/service-matcher";
 import { createLeadRecord, saveLead } from "@/lib/lead-storage";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { saveLockedReport } from "@/lib/report-storage";
+import { DatabaseConfigError } from "@/lib/db";
 import type { DiagnosisReport } from "@/types/diagnosis";
 import type { LeadSubmission } from "@/types/lead";
 
@@ -136,7 +137,29 @@ function extractJson(text: string) {
 
 export async function POST(request: Request) {
   try {
-    const rateLimit = await checkRateLimit(request, "diagnose", 5, 60 * 60);
+    let rateLimit: { allowed: boolean; retryAfter: number };
+    try {
+      rateLimit = await checkRateLimit(request, "diagnose", 5, 60 * 60);
+    } catch (error) {
+      console.error("Diagnosis rate limit error:", error);
+      if (error instanceof DatabaseConfigError) {
+        return NextResponse.json(
+          {
+            error:
+              "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
+          },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json(
+        {
+          error:
+            "数据库连接失败，暂时无法生成报告。请检查 Render 的 TURSO_DATABASE_URL / TURSO_AUTH_TOKEN 配置。"
+        },
+        { status: 503 }
+      );
+    }
+
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: "生成次数过多，请稍后再试或联系管理员。" },
@@ -260,7 +283,28 @@ export async function POST(request: Request) {
         buildReportMarkdown(reportBase)
     };
 
-    const stored = await saveLockedReport(report);
+    let stored: Awaited<ReturnType<typeof saveLockedReport>>;
+    try {
+      stored = await saveLockedReport(report);
+    } catch (error) {
+      console.error("Diagnosis report persistence error:", error);
+      if (error instanceof DatabaseConfigError) {
+        return NextResponse.json(
+          {
+            error:
+              "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
+          },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json(
+        {
+          error:
+            "报告已生成，但保存到数据库失败。请检查 Render 的 Turso 数据库配置后重试。"
+        },
+        { status: 503 }
+      );
+    }
 
     const leadSubmission: LeadSubmission = {
       companyName: parsed.data.companyName,

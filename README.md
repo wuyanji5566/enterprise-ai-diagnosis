@@ -25,6 +25,7 @@ npm run dev -- -p 3010
 - 诊断：http://localhost:3010/diagnosis
 - 结果：http://localhost:3010/result
 - 后台：http://localhost:3010/admin
+- 健康检查：http://localhost:3010/api/health
 
 ## 必需环境变量
 
@@ -80,6 +81,24 @@ Start Command: npm run render-start
 4. 配置全部必需环境变量。
 5. 首次生成报告时系统会自动创建和升级数据库表。
 6. 使用真实域名测试诊断、后台登录、确认收款、客户解锁和PDF打印。
+
+## 线上故障排查
+
+部署完成后先访问：
+
+```text
+https://你的域名/api/health
+```
+
+如果 `ok` 为 `false`，优先检查 Render 的环境变量：
+
+- `OPENAI_API_KEY`
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+- `ADMIN_PASSWORD`
+- `JWT_SECRET`
+
+生产环境不要设置 `DATABASE_MODE=local`。
 
 ## 安全说明
 
