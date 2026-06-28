@@ -60,6 +60,7 @@ type PageState =
 export default function ResultPage() {
   const [state, setState] = useState<PageState>({ kind: "loading" });
   const [refreshing, setRefreshing] = useState(false);
+  const [wechatConfirmed, setWechatConfirmed] = useState(false);
 
   const loadReport = useCallback(async () => {
     if (new URLSearchParams(window.location.search).get("demo") === "1") {
@@ -170,10 +171,22 @@ export default function ResultPage() {
                       {state.reportId}
                     </p>
                   </div>
+                  <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-left">
+                    <input
+                      type="checkbox"
+                      className="mt-1 size-4 shrink-0 rounded border-slate-300 text-brand"
+                      checked={wechatConfirmed}
+                      onChange={(event) => setWechatConfirmed(event.target.checked)}
+                    />
+                    <span className="text-sm font-semibold leading-6 text-slate-700">
+                      我已添加微信 {siteConfig.contact.wechatId}，并发送上方报告编号。
+                      管理员确认后再刷新解锁状态。
+                    </span>
+                  </label>
                   <button
                     type="button"
                     className="primary-button mt-6 w-full"
-                    disabled={refreshing}
+                    disabled={refreshing || !wechatConfirmed}
                     onClick={refreshUnlockStatus}
                   >
                     {refreshing ? (

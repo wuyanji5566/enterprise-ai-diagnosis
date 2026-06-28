@@ -273,6 +273,10 @@ export async function POST(request: Request) {
               "请诊断以下企业问卷，并只返回一个严格 JSON 对象。",
               "不要返回 Markdown 代码块，不要返回解释文字，不要把报告包在 report/data/result 字段里。",
               "JSON 顶层必须直接包含 schema.required 里的所有字段。",
+              "每一份报告必须高度差异化：所有评分、TOP3项目、ROI、风险、样品验证建议、推荐服务包和销售跟进判断，都必须直接引用问卷里的行业、主营业务、获客方式、销售问题、交付流程、成本痛点、预算、周期和顾虑。禁止输出通用套话。",
+              "为了方便后期转化，businessConclusion 必须写成可用于销售开场的一句话；clientFitReason 必须说明为什么值得跟进或为什么暂缓；salesInsight.bestConversionPath 必须给出最适合销售转化的路径；salesInsight.nextAction 必须在 免费沟通、深度诊断、样品验证、正式报价、暂不跟进 中选择一个。",
+              "TOP3项目必须按成交优先级排序，每个项目都要包含一个低成本样品验证动作，预算和周期必须贴合客户填写的预算、时间要求和数据成熟度。",
+              "如果客户需求不清、预算过低、数据基础弱或决策权不足，必须降低评分并明确建议先补资料/做样品验证，不要为了好看而给高分。",
               `JSON Schema: ${JSON.stringify(diagnosisJsonSchema)}`,
               `企业问卷: ${JSON.stringify(parsed.data, null, 2)}`
             ].join("\n\n")
