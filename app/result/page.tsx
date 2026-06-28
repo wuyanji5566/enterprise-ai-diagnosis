@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   ClipboardText,
+  Copy,
   LockKey,
   SpinnerGap
 } from "@phosphor-icons/react";
@@ -53,14 +54,44 @@ function normalizeReport(report: DiagnosisReport): DiagnosisReport {
 type PageState =
   | { kind: "loading" }
   | { kind: "report"; report: DiagnosisReport }
-  | { kind: "locked"; preview: DiagnosisReportPreview; reportId: string }
+  | {
+      kind: "locked";
+      preview: DiagnosisReportPreview;
+      reportId: string;
+      accessToken: string;
+    }
   | { kind: "empty" }
   | { kind: "error"; message: string };
+
+function readReportCredentialsFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const reportId = params.get("id")?.trim() || "";
+  const accessToken = params.get("token")?.trim() || "";
+
+  if (reportId && accessToken) {
+    window.localStorage.setItem(STORAGE_KEYS.reportId, reportId);
+    window.localStorage.setItem(STORAGE_KEYS.reportAccessToken, accessToken);
+  }
+
+  return {
+    reportId: reportId || window.localStorage.getItem(STORAGE_KEYS.reportId) || "",
+    accessToken:
+      accessToken || window.localStorage.getItem(STORAGE_KEYS.reportAccessToken) || ""
+  };
+}
+
+function buildReportReturnUrl(reportId: string, accessToken: string) {
+  const url = new URL("/result", window.location.origin);
+  url.searchParams.set("id", reportId);
+  url.searchParams.set("token", accessToken);
+  return url.toString();
+}
 
 export default function ResultPage() {
   const [state, setState] = useState<PageState>({ kind: "loading" });
   const [refreshing, setRefreshing] = useState(false);
   const [wechatConfirmed, setWechatConfirmed] = useState(false);
+  const [copiedReturnLink, setCopiedReturnLink] = useState(false);
 
   const loadReport = useCallback(async () => {
     if (new URLSearchParams(window.location.search).get("demo") === "1") {
@@ -68,8 +99,7 @@ export default function ResultPage() {
       return;
     }
 
-    const reportId = window.localStorage.getItem(STORAGE_KEYS.reportId);
-    const accessToken = window.localStorage.getItem(STORAGE_KEYS.reportAccessToken);
+    const { reportId, accessToken } = readReportCredentialsFromUrl();
 
     if (reportId && accessToken) {
       try {
@@ -96,7 +126,7 @@ export default function ResultPage() {
           return;
         }
         if (data.status === "locked" && data.preview) {
-          setState({ kind: "locked", preview: data.preview, reportId });
+          setState({ kind: "locked", preview: data.preview, reportId, accessToken });
           return;
         }
       } catch (error) {
@@ -115,10 +145,38 @@ export default function ResultPage() {
     void loadReport();
   }, [loadReport]);
 
+  useEffect(() => {
+    if (state.kind !== "locked") return;
+    const timer = window.setInterval(() => {
+      void loadReport();
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [loadReport, state.kind]);
+
   async function refreshUnlockStatus() {
     setRefreshing(true);
     await loadReport();
     setRefreshing(false);
+  }
+
+  async function copyReturnLink() {
+    if (state.kind !== "locked") return;
+    const url = buildReportReturnUrl(state.reportId, state.accessToken);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const input = document.createElement("textarea");
+      input.value = url;
+      input.setAttribute("readonly", "true");
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
+    setCopiedReturnLink(true);
+    window.setTimeout(() => setCopiedReturnLink(false), 1800);
   }
 
   return (
@@ -171,6 +229,22 @@ export default function ResultPage() {
                       {state.reportId}
                     </p>
                   </div>
+                  <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                    <p className="text-sm font-black text-emerald-900">
+                      退出后找不到报告？先保存这个查看链接
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-emerald-700">
+                      复制后发给自己或收藏。管理员确认收款并解锁后，打开这个链接会自动显示完整报告。
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
+                      onClick={copyReturnLink}
+                    >
+                      <Copy size={15} weight="bold" />
+                      {copiedReturnLink ? "已复制" : "复制报告查看链接"}
+                    </button>
+                  </div>
                   <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-left">
                     <input
                       type="checkbox"
@@ -196,6 +270,9 @@ export default function ResultPage() {
                     )}
                     {refreshing ? "正在查询" : "我已付款，刷新解锁状态"}
                   </button>
+                  <p className="mt-3 text-center text-xs text-slate-400">
+                    页面会每 5 秒自动检查一次解锁状态，后台确认后无需重新提交问卷。
+                  </p>
                 </div>
               </section>
               <div className="mt-8">

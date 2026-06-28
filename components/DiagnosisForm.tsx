@@ -211,6 +211,7 @@ export function DiagnosisForm() {
   const [generatedPreview, setGeneratedPreview] =
     useState<DiagnosisReportPreview | null>(null);
   const [generatedReportId, setGeneratedReportId] = useState("");
+  const [generatedAccessToken, setGeneratedAccessToken] = useState("");
   const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
@@ -433,6 +434,7 @@ export function DiagnosisForm() {
       window.localStorage.setItem(STORAGE_KEYS.reportAccessToken, data.accessToken);
       window.localStorage.setItem(STORAGE_KEYS.reportType, "free");
       setGeneratedReportId(data.reportId);
+      setGeneratedAccessToken(data.accessToken);
       setGeneratedPreview(data.preview);
       setShowPaywall(true);
     } catch (cause) {
@@ -443,6 +445,22 @@ export function DiagnosisForm() {
   }
 
   function viewReportStatus() {
+    const reportId =
+      generatedReportId || window.localStorage.getItem(STORAGE_KEYS.reportId) || "";
+    const accessToken =
+      generatedAccessToken ||
+      window.localStorage.getItem(STORAGE_KEYS.reportAccessToken) ||
+      "";
+
+    if (reportId && accessToken) {
+      router.push(
+        `/result?id=${encodeURIComponent(reportId)}&token=${encodeURIComponent(
+          accessToken
+        )}`
+      );
+      return;
+    }
+
     router.push("/result");
   }
 
@@ -1017,6 +1035,9 @@ export function DiagnosisForm() {
                       <p className="mt-4 border-t border-slate-200 pt-4 font-mono text-xs text-slate-400">
                         报告编号：{generatedReportId}
                       </p>
+                      <p className="mt-3 text-xs leading-5 text-slate-500">
+                        点击下方“查看解锁状态”会进入这份报告的专属查看链接。退出后请用该链接返回，后台解锁后可直接查看完整报告。
+                      </p>
                     </div>
                   )}
 
@@ -1095,6 +1116,7 @@ export function DiagnosisForm() {
                           setShowPaywall(false);
                           setGeneratedPreview(null);
                           setGeneratedReportId("");
+                          setGeneratedAccessToken("");
                         }}
                       >
                         <ArrowLeft size={17} />
