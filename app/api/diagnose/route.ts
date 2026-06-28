@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { DIAGNOSIS_SYSTEM_PROMPT } from "@/lib/ai-prompt";
-import { diagnosisJsonSchema } from "@/lib/diagnosis-schema";
 import { buildReportMarkdown } from "@/lib/report-template";
 import { matchServicePackage } from "@/lib/service-matcher";
 import { createLeadRecord, saveLead } from "@/lib/lead-storage";
@@ -109,7 +108,10 @@ function extractOutputText(payload: unknown): string | null {
   const response = payload as {
     output_text?: string;
     output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
+    choices?: Array<{ message?: { content?: string | null } }>;
   };
+  const chatContent = response.choices?.[0]?.message?.content?.trim();
+  if (chatContent) return chatContent;
   if (response.output_text) return response.output_text;
   for (const item of response.output ?? []) {
     for (const content of item.content ?? []) {
@@ -170,10 +172,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "服务端尚未配置 OPENAI_API_KEY，请先在 .env.local 或 Vercel 中添加。" },
+        { error: "服务端尚未配置 DEEPSEEK_API_KEY，请先在 Render Environment 中添加。" },
         { status: 503 }
       );
     }
@@ -192,36 +194,33 @@ export async function POST(request: Request) {
       );
     }
 
-    const openAIResponse = await fetch("https://api.openai.com/v1/responses", {
+    const deepSeekBaseUrl =
+      process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
+    const deepSeekModel = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
+    const deepSeekResponse = await fetch(`${deepSeekBaseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-5-mini",
-        input: [
+        model: deepSeekModel,
+        messages: [
           { role: "system", content: DIAGNOSIS_SYSTEM_PROMPT },
           {
             role: "user",
             content: `请诊断以下企业问卷：\n${JSON.stringify(parsed.data, null, 2)}`
           }
         ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "enterprise_ai_factory_diagnosis",
-            strict: true,
-            schema: diagnosisJsonSchema
-          }
-        },
-        max_output_tokens: 8000
+        response_format: { type: "json_object" },
+        max_tokens: 8000,
+        stream: false
       }),
       signal: AbortSignal.timeout(55000)
     });
 
-    const payload = await openAIResponse.json();
-    if (!openAIResponse.ok) {
+    const payload = await deepSeekResponse.json();
+    if (!deepSeekResponse.ok) {
       const message =
         payload &&
         typeof payload === "object" &&
@@ -230,8 +229,8 @@ export async function POST(request: Request) {
         typeof payload.error === "object" &&
         "message" in payload.error
           ? String(payload.error.message)
-          : "OpenAI API 调用失败。";
-      console.error("OpenAI API error:", message);
+          : "DeepSeek API 调用失败。";
+      console.error("DeepSeek API error:", message);
       return NextResponse.json(
         { error: "AI诊断服务暂时不可用，请稍后重试。" },
         { status: 502 }

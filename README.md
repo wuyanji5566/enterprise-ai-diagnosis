@@ -30,8 +30,9 @@ npm run dev -- -p 3010
 ## 必需环境变量
 
 ```env
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5-mini
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 TURSO_DATABASE_URL=
 TURSO_AUTH_TOKEN=
 DATABASE_MODE=
@@ -92,7 +93,7 @@ https://你的域名/api/health
 
 如果 `ok` 为 `false`，优先检查 Render 的环境变量：
 
-- `OPENAI_API_KEY`
+- `DEEPSEEK_API_KEY`
 - `TURSO_DATABASE_URL`
 - `TURSO_AUTH_TOKEN`
 - `ADMIN_PASSWORD`

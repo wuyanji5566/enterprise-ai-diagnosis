@@ -5,8 +5,9 @@ export const runtime = "nodejs";
 
 export async function GET() {
   const env = {
-    openai: Boolean(process.env.OPENAI_API_KEY),
-    openaiModel: process.env.OPENAI_MODEL || "gpt-5-mini",
+    deepseek: Boolean(process.env.DEEPSEEK_API_KEY),
+    deepseekModel: process.env.DEEPSEEK_MODEL || "deepseek-v4-flash",
+    deepseekBaseUrl: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
     tursoUrl: Boolean(process.env.TURSO_DATABASE_URL),
     tursoToken: Boolean(process.env.TURSO_AUTH_TOKEN),
     databaseMode: process.env.DATABASE_MODE || "remote",
