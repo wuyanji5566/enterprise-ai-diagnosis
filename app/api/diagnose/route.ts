@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { DIAGNOSIS_SYSTEM_PROMPT } from "@/lib/ai-prompt";
+import { diagnosisJsonSchema } from "@/lib/diagnosis-schema";
 import { buildReportMarkdown } from "@/lib/report-template";
 import { matchServicePackage } from "@/lib/service-matcher";
 import { createLeadRecord, saveLead } from "@/lib/lead-storage";
@@ -137,6 +138,65 @@ function extractJson(text: string) {
   }
 }
 
+function asObject(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function selectReportPayload(value: unknown): Record<string, unknown> {
+  const root = asObject(value);
+  if (!root) throw new Error("AI report payload is not an object.");
+
+  const candidates = [
+    root,
+    asObject(root.report),
+    asObject(root.diagnosisReport),
+    asObject(root.data),
+    asObject(root.result)
+  ].filter(Boolean) as Record<string, unknown>[];
+
+  return (
+    candidates.find(
+      (candidate) =>
+        "maturityScore" in candidate &&
+        "businessConclusion" in candidate &&
+        "topProjects" in candidate
+    ) ?? root
+  );
+}
+
+function validateReportPayload(report: Record<string, unknown>) {
+  const requiredFields = [
+    "maturityScore",
+    "maturityLevel",
+    "businessConclusion",
+    "clientFitLevel",
+    "clientFitReason",
+    "workflowAnalysis",
+    "opportunityMatrix",
+    "implementationRoadmap",
+    "topProjects",
+    "roiAnalysis",
+    "recommendedServicePackage",
+    "preQuoteRequiredMaterials",
+    "salesInsight"
+  ];
+  const missing = requiredFields.filter((field) => report[field] == null);
+  if (missing.length > 0) {
+    throw new Error(`AI report missing fields: ${missing.join(", ")}`);
+  }
+  if (typeof report.maturityScore !== "number") {
+    throw new Error("AI report maturityScore must be a number.");
+  }
+  if (!Array.isArray(report.topProjects) || report.topProjects.length < 3) {
+    throw new Error("AI report topProjects must include at least 3 items.");
+  }
+  if (!Array.isArray(report.opportunityMatrix) || report.opportunityMatrix.length < 3) {
+    throw new Error("AI report opportunityMatrix must include at least 3 items.");
+  }
+}
+
 export async function POST(request: Request) {
   try {
     let rateLimit: { allowed: boolean; retryAfter: number };
@@ -209,7 +269,13 @@ export async function POST(request: Request) {
           { role: "system", content: DIAGNOSIS_SYSTEM_PROMPT },
           {
             role: "user",
-            content: `请诊断以下企业问卷：\n${JSON.stringify(parsed.data, null, 2)}`
+            content: [
+              "请诊断以下企业问卷，并只返回一个严格 JSON 对象。",
+              "不要返回 Markdown 代码块，不要返回解释文字，不要把报告包在 report/data/result 字段里。",
+              "JSON 顶层必须直接包含 schema.required 里的所有字段。",
+              `JSON Schema: ${JSON.stringify(diagnosisJsonSchema)}`,
+              `企业问卷: ${JSON.stringify(parsed.data, null, 2)}`
+            ].join("\n\n")
           }
         ],
         response_format: { type: "json_object" },
@@ -250,10 +316,11 @@ export async function POST(request: Request) {
       "companyName" | "generatedAt" | "reportType"
     >;
     try {
-      rawReport = extractJson(outputText) as unknown as Omit<
+      rawReport = selectReportPayload(extractJson(outputText)) as unknown as Omit<
         DiagnosisReport,
         "companyName" | "generatedAt" | "reportType"
       >;
+      validateReportPayload(rawReport as unknown as Record<string, unknown>);
     } catch (error) {
       console.error("Diagnosis JSON parse error:", error);
       return NextResponse.json(
