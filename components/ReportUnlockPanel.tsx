@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
   CheckCircle,
   Clock,
   Copy,
+  Eye,
   LockKey,
   SpinnerGap
 } from "@phosphor-icons/react";
@@ -23,11 +25,11 @@ export function ReportUnlockPanel() {
         reports?: StoredReportSummary[];
         error?: string;
       };
-      if (!response.ok) throw new Error(data.error || "读取报告失败。");
+      if (!response.ok) throw new Error(data.error || "读取报告列表失败。");
       setReports(data.reports ?? []);
       setError("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "读取报告失败。");
+      setError(cause instanceof Error ? cause.message : "读取报告列表失败。");
     } finally {
       setLoading(false);
     }
@@ -67,9 +69,9 @@ export function ReportUnlockPanel() {
     <section className="surface-card overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-slate-200 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-black text-ink">报告收款与解锁</h2>
+          <h2 className="text-xl font-black text-ink">报告收款、查看与解锁</h2>
           <p className="mt-1 text-sm text-slate-500">
-            客户付款后核对报告编号，再执行解锁。解锁后不可撤销。
+            客户付款后核对报告编号，再执行解锁。需要人工解读时，可先点“查看报告”。
           </p>
         </div>
         <button type="button" className="secondary-button" onClick={loadReports}>
@@ -92,7 +94,7 @@ export function ReportUnlockPanel() {
         <div className="p-10 text-center text-sm text-slate-500">暂无诊断报告</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px] text-left text-sm">
+          <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="px-6 py-4">企业 / 报告编号</th>
@@ -143,19 +145,28 @@ export function ReportUnlockPanel() {
                     )}
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <button
-                      type="button"
-                      className="primary-button ml-auto"
-                      disabled={report.status === "unlocked" || workingId === report.id}
-                      onClick={() => unlock(report.id, report.companyName)}
-                    >
-                      {workingId === report.id ? (
-                        <SpinnerGap size={17} className="animate-spin" />
-                      ) : (
-                        <LockKey size={17} />
-                      )}
-                      {report.status === "unlocked" ? "已完成" : "确认收款并解锁"}
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/admin/reports/${encodeURIComponent(report.id)}`}
+                        className="secondary-button min-h-10 px-4 py-2"
+                      >
+                        <Eye size={17} />
+                        查看报告
+                      </Link>
+                      <button
+                        type="button"
+                        className="primary-button min-h-10 px-4 py-2"
+                        disabled={report.status === "unlocked" || workingId === report.id}
+                        onClick={() => unlock(report.id, report.companyName)}
+                      >
+                        {workingId === report.id ? (
+                          <SpinnerGap size={17} className="animate-spin" />
+                        ) : (
+                          <LockKey size={17} />
+                        )}
+                        {report.status === "unlocked" ? "已完成" : "确认收款并解锁"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

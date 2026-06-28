@@ -167,6 +167,17 @@ export async function listReportsForAdmin(): Promise<StoredReportSummary[]> {
   }));
 }
 
+export async function readReportForAdmin(id: string): Promise<DiagnosisReport | null> {
+  await ensureReportSchema();
+  const db = getDb();
+  const result = await db.execute({
+    sql: "SELECT report_json FROM reports WHERE id = ? LIMIT 1",
+    args: [id]
+  });
+  if (result.rows.length === 0) return null;
+  return parseReport(result.rows[0].report_json);
+}
+
 export async function unlockReport(id: string): Promise<boolean> {
   await ensureReportSchema();
   const db = getDb();
