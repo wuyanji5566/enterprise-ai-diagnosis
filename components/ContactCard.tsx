@@ -6,7 +6,7 @@ import { Check, Copy, QrCode, WechatLogo } from "@phosphor-icons/react";
 import { siteConfig } from "@/lib/site-config";
 
 export function ContactCard({
-  title = "添加微信，解锁完整诊断报告（¥99）",
+  title = "添加微信，解锁完整诊断报告",
   description = siteConfig.contact.consultationText
 }: {
   title?: string;
@@ -35,7 +35,6 @@ export function ContactCard({
       <div className="grid md:grid-cols-[220px_1fr]">
         <div className="grid min-h-56 place-items-center border-b border-slate-200 bg-slate-50 p-6 md:border-b-0 md:border-r">
           {!imageFailed ? (
-            // 上线时只需要替换 public/wechat-qr-placeholder.png 与 siteConfig.contact.wechatId。
             <Image
               src={siteConfig.contact.qrCodeUrl}
               alt="企业AI数字工厂微信二维码"
@@ -49,9 +48,9 @@ export function ContactCard({
               <div>
                 <QrCode size={42} className="mx-auto text-slate-300" weight="duotone" />
                 <p className="mt-3 text-xs font-bold leading-5 text-slate-500">
-                  微信二维码占位
+                  微信二维码
                   <br />
-                  后续替换为真实二维码
+                  请复制微信号添加
                 </p>
               </div>
             </div>
@@ -60,7 +59,7 @@ export function ContactCard({
         <div className="p-7 sm:p-9">
           <span className="eyebrow">
             <WechatLogo size={15} weight="fill" />
-            PRIVATE CONSULTATION
+            WECHAT CONSULTATION
           </span>
           <h3 className="mt-5 text-2xl font-black tracking-tight text-ink">{title}</h3>
           <p className="mt-3 text-sm leading-7 text-slate-500">{description}</p>

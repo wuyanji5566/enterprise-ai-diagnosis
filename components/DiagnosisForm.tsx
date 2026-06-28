@@ -24,6 +24,7 @@ import {
 } from "@/lib/constants";
 import { reportTypeLabels, siteConfig } from "@/lib/site-config";
 import { MultiSelect } from "@/components/multi-select";
+import { QuickScreeningPanel } from "@/components/QuickScreeningPanel";
 import { StepProgress } from "@/components/step-progress";
 import type {
   DiagnoseResponse,
@@ -475,6 +476,8 @@ export function DiagnosisForm() {
 
             {!showPaywall ? (
               <>
+                <QuickScreeningPanel />
+                <div id="formal-diagnosis" className="scroll-mt-24" />
                 <StepProgress
                   steps={STEPS}
                   current={step}

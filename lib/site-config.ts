@@ -1,13 +1,14 @@
 export const siteConfig = {
   brandName: "企业AI数字工厂",
   brandSubtitle: "从AI诊断到样品验证，再到系统交付",
-  founderName: "小伍",
+  founderName: "伍老师",
   contact: {
     wechatId: "wuyanji",
     phone: "",
     email: "",
     qrCodeUrl: "/wechat-qr.jpg",
-    consultationText: "添加微信，获取企业AI诊断与样品验证方案"
+    consultationText:
+      "添加微信后，请发送你的行业、公司规模和当前最想解决的问题。我会先判断适合从诊断、样品验证还是正式项目切入。"
   },
   diagnosisProducts: {
     free: {
@@ -21,7 +22,6 @@ export const siteConfig = {
       description: "人工访谈、资料分析和正式落地方案建议"
     }
   },
-  /** 诊断报告解锁价格 */
   unlockPrice: 99
 } as const;
 

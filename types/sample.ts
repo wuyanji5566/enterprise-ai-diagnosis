@@ -18,4 +18,6 @@ export interface SampleItem {
   mediaType: SampleMediaType;
   mediaPlaceholder: string;
   realAssetNote: string;
+  referenceBudget: string;
+  coverImage: string;
 }

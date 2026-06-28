@@ -27,6 +27,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: 78px;
+  }
+}
+
 button,
 input,
 select,

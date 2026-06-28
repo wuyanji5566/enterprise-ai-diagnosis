@@ -28,10 +28,10 @@ export default function SamplesPage() {
           <div className="page-shell">
             <span className="eyebrow">AI SAMPLE LIBRARY</span>
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-[-0.045em] text-ink sm:text-5xl">
-              企业AI应用样品库
+              可复制、可定制、可成交的AI样品库
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-7 text-slate-500">
-              这里展示的不是单个作品，而是企业AI数字工厂已经跑通的样品产线。每个样品都可以根据企业行业、产品和业务流程进行定制升级。
+              每个样品都对应一种真实企业问题：先用小样品验证价值，再决定是否进入培训、自动化或系统MVP交付。
             </p>
           </div>
         </section>
@@ -72,7 +72,7 @@ export default function SamplesPage() {
         </section>
         <CTASection
           title="想把某个样品变成你企业的版本？"
-          description="先完成AI诊断，我们会根据企业现状判断该从样品验证、流程自动化还是业务系统MVP切入。"
+          description="先完成AI诊断，我会根据你的行业、资料基础、预算和成交目标，判断从哪个样品切入最稳。"
         />
       </main>
       <SiteFooter />
