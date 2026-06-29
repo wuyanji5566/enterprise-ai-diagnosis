@@ -8,6 +8,7 @@ import { createLeadRecord, saveLead } from "@/lib/lead-storage";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { saveLockedReport } from "@/lib/report-storage";
 import { DatabaseConfigError } from "@/lib/db";
+import { getUserSession } from "@/lib/user-auth";
 import type { DiagnosisReport } from "@/types/diagnosis";
 import type { LeadSubmission } from "@/types/lead";
 
@@ -355,7 +356,8 @@ export async function POST(request: Request) {
 
     let stored: Awaited<ReturnType<typeof saveLockedReport>>;
     try {
-      stored = await saveLockedReport(report);
+      const userSession = await getUserSession(request);
+      stored = await saveLockedReport(report, userSession?.userId);
     } catch (error) {
       console.error("Diagnosis report persistence error:", error);
       if (error instanceof DatabaseConfigError) {

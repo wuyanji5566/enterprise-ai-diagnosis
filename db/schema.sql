@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS reports (
   access_token_hash TEXT DEFAULT NULL,
   status          TEXT NOT NULL DEFAULT 'locked',
   created_at      TEXT NOT NULL,
-  unlocked_at     TEXT DEFAULT NULL
+  unlocked_at     TEXT DEFAULT NULL,
+  user_id         TEXT DEFAULT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_leads_submitted_at ON leads(submitted_at DESC);
@@ -44,6 +45,18 @@ CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
 CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source);
 CREATE INDEX IF NOT EXISTS idx_reports_created_at ON reports(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_reports_status_created_at ON reports(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reports_user_created_at ON reports(user_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS users (
+  id              TEXT PRIMARY KEY,
+  email           TEXT NOT NULL UNIQUE,
+  name            TEXT NOT NULL DEFAULT '',
+  password_hash   TEXT NOT NULL,
+  created_at      TEXT NOT NULL,
+  last_login_at   TEXT DEFAULT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 CREATE TABLE IF NOT EXISTS rate_limits (
   key        TEXT PRIMARY KEY,

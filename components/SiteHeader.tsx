@@ -9,9 +9,10 @@ import {
   List,
   Package,
   Sparkle,
+  UserCircle,
   X
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/site-config";
 
@@ -32,10 +33,26 @@ function isActive(pathname: string, href: string) {
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const showMobileCta =
     !pathname.startsWith("/diagnosis") &&
     !pathname.startsWith("/result") &&
     !pathname.startsWith("/admin");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/user/me", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { user?: { name: string; email: string } | null }) => {
+        if (active) setUser(data.user ?? null);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   return (
     <>
@@ -76,6 +93,13 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link
+              href={user ? "/account" : "/login"}
+              className="hidden min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
+            >
+              <UserCircle size={18} weight="duotone" />
+              {user ? "我的报告" : "登录"}
+            </Link>
             <Link href="/diagnosis" className="primary-button hidden sm:inline-flex">
               开始AI诊断
             </Link>
@@ -108,6 +132,14 @@ export function SiteHeader() {
                   </Link>
                 );
               })}
+              <Link
+                href={user ? "/account" : "/login"}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                <UserCircle size={18} className="text-brand" weight="duotone" />
+                {user ? "我的报告" : "登录 / 注册"}
+              </Link>
             </div>
           </nav>
         )}
