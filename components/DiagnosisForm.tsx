@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -888,22 +889,45 @@ export function DiagnosisForm() {
                   <p className="mt-4 font-mono text-xs text-slate-400">报告编号：{generatedReportId}</p>
                 </div>
               )}
-              <div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[.06] p-7 text-white sm:p-8">
-                <p className="text-sm font-bold text-cyan-100">解锁价格</p>
-                <p className="mt-2 text-5xl font-black tracking-[-0.05em]">¥{siteConfig.unlockPrice}</p>
-                <p className="mt-5 text-sm leading-6 text-slate-200">
-                  添加微信 <strong className="text-white">{siteConfig.contact.wechatId}</strong>，
-                  发送报告编号并支付{siteConfig.unlockPrice}元。管理员确认收款后，点击下方按钮即可查看完整报告。
-                </p>
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <button type="button" className="ai-primary-button" onClick={viewReportStatus}>
-                    <Sparkle size={18} weight="fill" />
-                    我已付款，查看解锁状态
-                  </button>
-                  <button type="button" className="ai-secondary-button" onClick={() => setShowPaywall(false)}>
-                    <ArrowLeft size={17} />
-                    返回修改问卷
-                  </button>
+              <div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[.06] p-6 text-white sm:p-8">
+                <div className="grid gap-6 md:grid-cols-[220px_1fr] md:items-start">
+                  <div className="rounded-2xl border border-white/10 bg-white p-3 shadow-[0_18px_45px_rgba(34,211,238,.18)]">
+                    <Image
+                      src={siteConfig.contact.qrCodeUrl}
+                      alt={`添加${siteConfig.contact.wechatId}微信解锁报告`}
+                      width={420}
+                      height={600}
+                      className="h-auto w-full rounded-xl"
+                      priority
+                    />
+                    <p className="mt-3 text-center text-xs font-bold text-slate-700">扫码添加微信</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-cyan-100">添加微信并支付后解锁</p>
+                    <p className="mt-2 text-5xl font-black tracking-[-0.05em]">¥{siteConfig.unlockPrice}</p>
+                    <p className="mt-5 text-sm leading-7 text-slate-200">
+                      请先扫码添加微信 <strong className="text-white">{siteConfig.contact.wechatId}</strong>，
+                      发送报告编号并支付{siteConfig.unlockPrice}元。管理员确认收款后，点击下方按钮即可查看完整报告。
+                    </p>
+                    <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/35 p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-100">解锁流程</p>
+                      <ol className="mt-3 space-y-2 text-sm leading-6 text-slate-200">
+                        <li>1. 扫码添加微信，备注“AI诊断报告”。</li>
+                        <li>2. 发送报告编号：<span className="font-mono text-cyan-100">{generatedReportId}</span></li>
+                        <li>3. 微信支付 ¥{siteConfig.unlockPrice} 后，等待管理员确认解锁。</li>
+                      </ol>
+                    </div>
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                      <button type="button" className="ai-primary-button" onClick={viewReportStatus}>
+                        <Sparkle size={18} weight="fill" />
+                        我已添加微信并付款，查看解锁状态
+                      </button>
+                      <button type="button" className="ai-secondary-button" onClick={() => setShowPaywall(false)}>
+                        <ArrowLeft size={17} />
+                        返回修改问卷
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
