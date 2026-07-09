@@ -55,7 +55,7 @@ const questionnaireSchema = z.object({
   industry: z.string().trim().min(1).max(80),
   employees: z.number().int().positive().max(1000000),
   revenue: z.string().trim().min(1).max(80),
-  mainOffering: z.string().trim().min(5).max(1000),
+  mainOffering: z.string().trim().min(8).max(1000),
   respondentRole: z.string().trim().min(1).max(80),
   decisionAuthority,
   owners: z.object({
@@ -64,12 +64,12 @@ const questionnaireSchema = z.object({
     it: yesNo
   }),
   workflow: z.object({
-    acquisition: z.string().trim().min(5).max(2000),
-    sales: z.string().trim().min(5).max(2000),
-    delivery: z.string().trim().min(5).max(2000),
-    management: z.string().trim().min(5).max(2000),
-    manualDependency: z.string().trim().min(5).max(2000),
-    biggestBottleneck: z.string().trim().min(5).max(2000)
+    acquisition: z.string().trim().min(10).max(2000),
+    sales: z.string().trim().min(10).max(2000),
+    delivery: z.string().trim().min(10).max(2000),
+    management: z.string().trim().min(10).max(2000),
+    manualDependency: z.string().trim().min(8).max(2000),
+    biggestBottleneck: z.string().trim().min(8).max(2000)
   }),
   salesSystem: z.object({
     customerList: yesNo,
@@ -77,7 +77,7 @@ const questionnaireSchema = z.object({
     quoteTemplate: yesNo,
     followUpMechanism: yesNo,
     historicalRecords: yesNo,
-    biggestProblem: z.string().trim().min(5).max(2000)
+    biggestProblem: z.string().trim().min(10).max(2000)
   }),
   marketingCapability: z.object({
     channels: z.array(z.string().trim().min(1).max(100)).min(1).max(12),
@@ -85,22 +85,22 @@ const questionnaireSchema = z.object({
     consistentPublishing: yesNo,
     sellingPoints: yesNo,
     contentLibrary: yesNo,
-    upgradeGoal: z.string().trim().min(5).max(2000)
+    upgradeGoal: z.string().trim().min(10).max(2000)
   }),
   costStructure: z.object({
-    mostLaborIntensive: z.string().trim().min(3).max(1000),
-    mostRepetitive: z.string().trim().min(3).max(1000),
-    errorProne: z.string().trim().min(3).max(1000),
-    salesBottleneck: z.string().trim().min(3).max(1000),
-    costToReduce: z.string().trim().min(3).max(1000),
-    weeklyRecurring: z.string().trim().min(3).max(1000)
+    mostLaborIntensive: z.string().trim().min(5).max(1000),
+    mostRepetitive: z.string().trim().min(5).max(1000),
+    errorProne: z.string().trim().min(5).max(1000),
+    salesBottleneck: z.string().trim().min(5).max(1000),
+    costToReduce: z.string().trim().min(5).max(1000),
+    weeklyRecurring: z.string().trim().min(5).max(1000)
   }),
   aiPlan: z.object({
-    primaryProblem: z.string().trim().min(5).max(2000),
+    primaryProblem: z.string().trim().min(10).max(2000),
     timeToResult: z.string().trim().min(1).max(80),
     budget: z.string().trim().min(1).max(80),
     mvpAccepted: mvpPreference,
-    biggestConcern: z.string().trim().min(3).max(1000),
+    biggestConcern: z.string().trim().min(5).max(1000),
     dataConsent: yesNo
   })
 });
@@ -148,7 +148,6 @@ function asObject(value: unknown): Record<string, unknown> | null {
 function selectReportPayload(value: unknown): Record<string, unknown> {
   const root = asObject(value);
   if (!root) throw new Error("AI report payload is not an object.");
-
   const candidates = [
     root,
     asObject(root.report),
@@ -156,7 +155,6 @@ function selectReportPayload(value: unknown): Record<string, unknown> {
     asObject(root.data),
     asObject(root.result)
   ].filter(Boolean) as Record<string, unknown>[];
-
   return (
     candidates.find(
       (candidate) =>
@@ -184,18 +182,38 @@ function validateReportPayload(report: Record<string, unknown>) {
     "salesInsight"
   ];
   const missing = requiredFields.filter((field) => report[field] == null);
-  if (missing.length > 0) {
-    throw new Error(`AI report missing fields: ${missing.join(", ")}`);
-  }
-  if (typeof report.maturityScore !== "number") {
-    throw new Error("AI report maturityScore must be a number.");
-  }
+  if (missing.length > 0) throw new Error(`AI report missing fields: ${missing.join(", ")}`);
+  if (typeof report.maturityScore !== "number") throw new Error("AI report maturityScore must be a number.");
   if (!Array.isArray(report.topProjects) || report.topProjects.length < 3) {
     throw new Error("AI report topProjects must include at least 3 items.");
   }
   if (!Array.isArray(report.opportunityMatrix) || report.opportunityMatrix.length < 3) {
     throw new Error("AI report opportunityMatrix must include at least 3 items.");
   }
+}
+
+function normalizeFitLevel(value: string): LeadSubmission["clientFitLevel"] {
+  return ["A类客户", "B类客户", "C类客户", "D类客户"].includes(value)
+    ? (value as LeadSubmission["clientFitLevel"])
+    : "C类客户";
+}
+
+function normalizeSignal(value: string): LeadSubmission["budgetSignal"] {
+  return ["低", "中", "高"].includes(value) ? (value as LeadSubmission["budgetSignal"]) : "未知";
+}
+
+function normalizeUrgency(value: string): LeadSubmission["urgency"] {
+  return ["低", "中", "高"].includes(value) ? (value as LeadSubmission["urgency"]) : "中";
+}
+
+function normalizeDataReadiness(value: string): LeadSubmission["dataReadiness"] {
+  return ["弱", "中", "强"].includes(value) ? (value as LeadSubmission["dataReadiness"]) : "弱";
+}
+
+function normalizeNextAction(value: string): LeadSubmission["recommendedNextStep"] {
+  return ["免费沟通", "深度诊断", "样品验证", "正式报价", "暂不跟进"].includes(value)
+    ? (value as LeadSubmission["recommendedNextStep"])
+    : "免费沟通";
 }
 
 export async function POST(request: Request) {
@@ -205,31 +223,17 @@ export async function POST(request: Request) {
       rateLimit = await checkRateLimit(request, "diagnose", 5, 60 * 60);
     } catch (error) {
       console.error("Diagnosis rate limit error:", error);
-      if (error instanceof DatabaseConfigError) {
-        return NextResponse.json(
-          {
-            error:
-              "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
-          },
-          { status: 503 }
-        );
-      }
-      return NextResponse.json(
-        {
-          error:
-            "数据库连接失败，暂时无法生成报告。请检查 Render 的 TURSO_DATABASE_URL / TURSO_AUTH_TOKEN 配置。"
-        },
-        { status: 503 }
-      );
+      const message =
+        error instanceof DatabaseConfigError
+          ? "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
+          : "数据库连接失败，暂时无法生成报告。请检查 Render 的 TURSO_DATABASE_URL / TURSO_AUTH_TOKEN 配置。";
+      return NextResponse.json({ error: message }, { status: 503 });
     }
 
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: "生成次数过多，请稍后再试或联系管理员。" },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rateLimit.retryAfter) }
-        }
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } }
       );
     }
 
@@ -255,8 +259,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const deepSeekBaseUrl =
-      process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
+    const deepSeekBaseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
     const deepSeekModel = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
     const deepSeekResponse = await fetch(`${deepSeekBaseUrl}/chat/completions`, {
       method: "POST",
@@ -274,10 +277,14 @@ export async function POST(request: Request) {
               "请诊断以下企业问卷，并只返回一个严格 JSON 对象。",
               "不要返回 Markdown 代码块，不要返回解释文字，不要把报告包在 report/data/result 字段里。",
               "JSON 顶层必须直接包含 schema.required 里的所有字段。",
-              "每一份报告必须高度差异化：所有评分、TOP3项目、ROI、风险、样品验证建议、推荐服务包和销售跟进判断，都必须直接引用问卷里的行业、主营业务、获客方式、销售问题、交付流程、成本痛点、预算、周期和顾虑。禁止输出通用套话。",
-              "为了方便后期转化，businessConclusion 必须写成可用于销售开场的一句话；clientFitReason 必须说明为什么值得跟进或为什么暂缓；salesInsight.bestConversionPath 必须给出最适合销售转化的路径；salesInsight.nextAction 必须在 免费沟通、深度诊断、样品验证、正式报价、暂不跟进 中选择一个。",
-              "TOP3项目必须按成交优先级排序，每个项目都要包含一个低成本样品验证动作，预算和周期必须贴合客户填写的预算、时间要求和数据成熟度。",
-              "如果客户需求不清、预算过低、数据基础弱或决策权不足，必须降低评分并明确建议先补资料/做样品验证，不要为了好看而给高分。",
+              "每一份报告必须高度差异化：所有评分、TOP3项目、ROI、风险、样品验证建议、推荐服务包和销售跟进判断，都必须直接引用问卷里的行业、主营业务、获客方式、销售问题、交付流程、成本痛点、预算、周期和顾虑。",
+              "reportMarkdown 必须是一份完整中文咨询报告，建议 1800-3000 字，包含：企业现状摘要、核心判断、成熟度评分解释、业务流程拆解、TOP3项目详细执行步骤、7/30/90天路线、ROI假设、暂不建议事项、推荐服务包、下一步成交建议。",
+              "为了方便后期转化，businessConclusion 要写成可用于销售开场的一句话；clientFitReason 要说明为什么值得跟进或为什么暂缓；salesInsight.bestConversionPath 必须给出最适合销售转化的路径。",
+              "salesInsight.nextAction 必须从 免费沟通、深度诊断、样品验证、正式报价、暂不跟进 中选择一个。",
+              "clientFitLevel 只能是 A类客户、B类客户、C类客户、D类客户。",
+              "salesInsight.urgency 和 salesInsight.budgetSignal 只能是 低、中、高；salesInsight.dataReadiness 只能是 弱、中、强。",
+              "TOP3项目必须按成交优先级排序，每个项目都要包含低成本样品验证动作，预算和周期必须贴合客户填写的预算、时间要求和数据成熟度。",
+              "如果客户需求不清、预算过低、资料基础弱或决策权不足，必须降低评分并明确建议先补资料或做样品验证，不要为了好看而给高分。",
               `JSON Schema: ${JSON.stringify(diagnosisJsonSchema)}`,
               `企业问卷: ${JSON.stringify(parsed.data, null, 2)}`
             ].join("\n\n")
@@ -316,10 +323,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let rawReport: Omit<
-      DiagnosisReport,
-      "companyName" | "generatedAt" | "reportType"
-    >;
+    let rawReport: Omit<DiagnosisReport, "companyName" | "generatedAt" | "reportType">;
     try {
       rawReport = selectReportPayload(extractJson(outputText)) as unknown as Omit<
         DiagnosisReport,
@@ -350,8 +354,7 @@ export async function POST(request: Request) {
     const report: DiagnosisReport = {
       ...reportBase,
       reportMarkdown:
-        rawReport.reportMarkdown?.trim() ||
-        buildReportMarkdown(reportBase)
+        rawReport.reportMarkdown?.trim() || buildReportMarkdown(reportBase)
     };
 
     let stored: Awaited<ReturnType<typeof saveLockedReport>>;
@@ -360,22 +363,11 @@ export async function POST(request: Request) {
       stored = await saveLockedReport(report, userSession?.userId);
     } catch (error) {
       console.error("Diagnosis report persistence error:", error);
-      if (error instanceof DatabaseConfigError) {
-        return NextResponse.json(
-          {
-            error:
-              "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
-          },
-          { status: 503 }
-        );
-      }
-      return NextResponse.json(
-        {
-          error:
-            "报告已生成，但保存到数据库失败。请检查 Render 的 Turso 数据库配置后重试。"
-        },
-        { status: 503 }
-      );
+      const message =
+        error instanceof DatabaseConfigError
+          ? "生产数据库尚未配置。请在 Render Environment Variables 中配置 TURSO_DATABASE_URL 和 TURSO_AUTH_TOKEN。"
+          : "报告已生成，但保存到数据库失败。请检查 Render 的 Turso 数据库配置后重试。";
+      return NextResponse.json({ error: message }, { status: 503 });
     }
 
     const leadSubmission: LeadSubmission = {
@@ -383,30 +375,12 @@ export async function POST(request: Request) {
       industry: parsed.data.industry,
       employees: parsed.data.employees,
       maturityScore: report.maturityScore,
-      clientFitLevel: ["A类客户", "B类客户", "C类客户", "D类客户"].includes(
-        report.clientFitLevel
-      )
-        ? (report.clientFitLevel as LeadSubmission["clientFitLevel"])
-        : "C类客户",
-      budgetSignal: ["低", "中", "高"].includes(report.salesInsight.budgetSignal)
-        ? (report.salesInsight.budgetSignal as LeadSubmission["budgetSignal"])
-        : "未知",
-      urgency: ["低", "中", "高"].includes(report.salesInsight.urgency)
-        ? (report.salesInsight.urgency as LeadSubmission["urgency"])
-        : "中",
-      dataReadiness: ["弱", "中", "强"].includes(report.salesInsight.dataReadiness)
-        ? (report.salesInsight.dataReadiness as LeadSubmission["dataReadiness"])
-        : "弱",
+      clientFitLevel: normalizeFitLevel(report.clientFitLevel),
+      budgetSignal: normalizeSignal(report.salesInsight.budgetSignal),
+      urgency: normalizeUrgency(report.salesInsight.urgency),
+      dataReadiness: normalizeDataReadiness(report.salesInsight.dataReadiness),
       recommendedService: report.recommendedServicePackage.name,
-      recommendedNextStep: [
-        "免费沟通",
-        "深度诊断",
-        "样品验证",
-        "正式报价",
-        "暂不跟进"
-      ].includes(report.salesInsight.nextAction)
-        ? (report.salesInsight.nextAction as LeadSubmission["recommendedNextStep"])
-        : "免费沟通",
+      recommendedNextStep: normalizeNextAction(report.salesInsight.nextAction),
       diagnosisType: "免费初筛",
       paid99: "否",
       collectionNextAction: "发诊断链接",

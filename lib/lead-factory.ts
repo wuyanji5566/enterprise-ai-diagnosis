@@ -1,4 +1,3 @@
-// 线索工厂函数 — 纯函数，创建 LeadRecord 对象
 import type { LeadRecord, LeadSubmission } from "@/types/lead";
 
 export const MOCK_LEADS: LeadRecord[] = [
@@ -12,7 +11,7 @@ export const MOCK_LEADS: LeadRecord[] = [
     budgetSignal: "中",
     urgency: "中",
     dataReadiness: "中",
-    recommendedService: "AI营销增长包",
+    recommendedService: "AI营销增长样品包",
     recommendedNextStep: "样品验证",
     diagnosisType: "免费初筛",
     wechatAdded: "是",
@@ -46,29 +45,6 @@ export const MOCK_LEADS: LeadRecord[] = [
     submittedAt: "2026-06-23T03:20:00.000Z",
     status: "新线索",
     note: "报表整理和客户归档耗时较高。",
-    source: "示例数据"
-  },
-  {
-    id: "mock-3",
-    companyName: "跃动体育培训",
-    industry: "教育培训",
-    employees: 28,
-    maturityScore: 68,
-    clientFitLevel: "B类客户",
-    budgetSignal: "中",
-    urgency: "高",
-    dataReadiness: "中",
-    recommendedService: "轻量业务系统MVP",
-    recommendedNextStep: "样品验证",
-    diagnosisType: "999元人工诊断",
-    wechatAdded: "未知",
-    paid99: "未知",
-    referralSource: "自然访问",
-    referrer: "",
-    collectionNextAction: "正式报价",
-    submittedAt: "2026-06-23T08:10:00.000Z",
-    status: "已报价",
-    note: "需要课程和学员管理MVP。",
     source: "示例数据"
   }
 ];

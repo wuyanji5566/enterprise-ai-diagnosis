@@ -39,24 +39,17 @@ async function ensureLeadSchema() {
     await db.execute(
       "CREATE INDEX IF NOT EXISTS idx_leads_submitted_at ON leads(submitted_at DESC)"
     );
-    await db.execute(
-      "CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status)"
-    );
-    await db.execute(
-      "CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source)"
-    );
+    await db.execute("CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status)");
+    await db.execute("CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source)");
   })();
   return schemaReady;
 }
 
-/** 从数据库读取所有线索 */
 export async function readLeads(): Promise<LeadRecord[]> {
   try {
     await ensureLeadSchema();
     const db = getDb();
-    const result = await db.execute(
-      "SELECT * FROM leads ORDER BY submitted_at DESC LIMIT 200"
-    );
+    const result = await db.execute("SELECT * FROM leads ORDER BY submitted_at DESC LIMIT 200");
     return result.rows.map(rowToLead);
   } catch (error) {
     console.error("readLeads error:", error);
@@ -64,15 +57,11 @@ export async function readLeads(): Promise<LeadRecord[]> {
   }
 }
 
-/** 按 ID 读取单条线索 */
 export async function readLeadById(id: string): Promise<LeadRecord | null> {
   try {
     await ensureLeadSchema();
     const db = getDb();
-    const result = await db.execute({
-      sql: "SELECT * FROM leads WHERE id = ?",
-      args: [id]
-    });
+    const result = await db.execute({ sql: "SELECT * FROM leads WHERE id = ?", args: [id] });
     if (result.rows.length === 0) return null;
     return rowToLead(result.rows[0]);
   } catch (error) {
@@ -81,7 +70,6 @@ export async function readLeadById(id: string): Promise<LeadRecord | null> {
   }
 }
 
-/** 保存线索（新增或按 company+service 去重更新） */
 export async function saveLead(record: LeadRecord): Promise<LeadRecord[]> {
   try {
     await ensureLeadSchema();
@@ -104,15 +92,11 @@ export async function saveLead(record: LeadRecord): Promise<LeadRecord[]> {
   }
 }
 
-/** 更新线索状态 */
 export async function updateLeadStatus(id: string, status: LeadStatus): Promise<LeadRecord[]> {
   try {
     await ensureLeadSchema();
     const db = getDb();
-    await db.execute({
-      sql: "UPDATE leads SET status = ? WHERE id = ?",
-      args: [status, id]
-    });
+    await db.execute({ sql: "UPDATE leads SET status = ? WHERE id = ?", args: [status, id] });
     return readLeads();
   } catch (error) {
     console.error("updateLeadStatus error:", error);
@@ -120,15 +104,11 @@ export async function updateLeadStatus(id: string, status: LeadStatus): Promise<
   }
 }
 
-/** 更新线索备注 */
 export async function updateLeadNote(id: string, note: string): Promise<LeadRecord[]> {
   try {
     await ensureLeadSchema();
     const db = getDb();
-    await db.execute({
-      sql: "UPDATE leads SET note = ? WHERE id = ?",
-      args: [note, id]
-    });
+    await db.execute({ sql: "UPDATE leads SET note = ? WHERE id = ?", args: [note, id] });
     return readLeads();
   } catch (error) {
     console.error("updateLeadNote error:", error);
@@ -136,7 +116,6 @@ export async function updateLeadNote(id: string, note: string): Promise<LeadReco
   }
 }
 
-/** 更新线索任意字段 */
 export async function updateLeadField<K extends keyof LeadRecord>(
   id: string,
   field: K,
@@ -158,7 +137,6 @@ export async function updateLeadField<K extends keyof LeadRecord>(
   }
 }
 
-/** 删除线索 */
 export async function deleteLead(id: string): Promise<void> {
   try {
     await ensureLeadSchema();
@@ -169,12 +147,11 @@ export async function deleteLead(id: string): Promise<void> {
   }
 }
 
-/** 导出 CSV（UTF-8 BOM，兼容 Excel 中文） */
 export async function exportLeadsCSV(): Promise<string> {
   const leads = await readLeads();
   const headers = [
     "ID", "企业名称", "行业", "员工数", "AI成熟度",
-    "客户等级", "预算信号", "紧迫度", "数据完善度",
+    "客户等级", "预算信号", "紧迫度", "资料完整度",
     "推荐服务", "下一步", "诊断类型", "微信已加", "已付费",
     "来源渠道", "推荐人", "采集动作", "提交时间", "状态", "备注",
     "联系人", "联系方式"
@@ -193,10 +170,8 @@ export async function exportLeadsCSV(): Promise<string> {
     .map((row) => row.map(escapeCSV).join(","))
     .join("\n");
 
-  return "﻿" + csvContent; // BOM for Excel
+  return "\uFEFF" + csvContent;
 }
-
-// ── 内部工具函数 ──
 
 function escapeCSV(value: string | number): string {
   const s = String(value);
