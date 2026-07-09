@@ -11,12 +11,13 @@ export function WechatCTA({
   secondaryLabel?: string;
 }) {
   return (
-    <section className="section-space">
+    <section className="section-space bg-slate-950">
       <div className="page-shell">
-        <div className="overflow-hidden rounded-[30px] bg-ink p-8 text-white sm:p-12 lg:p-14">
-          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+        <div className="relative overflow-hidden rounded-[30px] border border-cyan-300/20 bg-white/[.045] p-8 text-white shadow-[0_24px_90px_rgba(14,165,233,.12)] sm:p-12 lg:p-14">
+          <div className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-cyan-400/20 blur-3xl" />
+          <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-300">
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-cyan-200">
                 <WechatLogo size={16} weight="fill" />
                 WECHAT PRIVATE SERVICE
               </span>
@@ -24,7 +25,7 @@ export function WechatCTA({
               <p className="mt-4 text-sm leading-7 text-slate-300">{description}</p>
             </div>
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-              <Link href="/diagnosis" className="primary-button">
+              <Link href="/diagnosis" className="ai-primary-button">
                 {secondaryLabel}
                 <ArrowRight size={17} />
               </Link>

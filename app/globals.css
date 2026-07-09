@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
+  --background: #020617;
   --foreground: #0b1224;
 }
 
@@ -97,6 +97,106 @@ a {
 
   .secondary-button {
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ai-hero-bg {
+    background:
+      radial-gradient(circle at 72% 0%, rgba(79, 70, 229, 0.36), transparent 34%),
+      radial-gradient(circle at 12% 34%, rgba(6, 182, 212, 0.18), transparent 30%),
+      linear-gradient(135deg, #020617 0%, #08111f 46%, #0f172a 100%);
+  }
+
+  .ai-page-bg {
+    background:
+      radial-gradient(circle at 78% 4%, rgba(79, 70, 229, 0.18), transparent 30%),
+      radial-gradient(circle at 12% 18%, rgba(6, 182, 212, 0.12), transparent 26%),
+      linear-gradient(135deg, #020617 0%, #08111f 48%, #0f172a 100%);
+  }
+
+  .ai-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at 50% 34%, black, transparent 72%);
+  }
+
+  .ai-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.11;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px);
+    background-size: 18px 18px, 23px 23px;
+    mix-blend-mode: screen;
+  }
+
+  .ai-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 30%, transparent 0%, transparent 42%, rgba(2, 6, 23, 0.52) 100%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.15), rgba(2, 6, 23, 0.65));
+  }
+
+  .ai-glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 9999px;
+    filter: blur(90px);
+  }
+
+  .ai-glow-cyan {
+    background: rgba(6, 182, 212, 0.22);
+  }
+
+  .ai-glow-violet {
+    background: rgba(124, 58, 237, 0.28);
+  }
+
+  .ai-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-cyan-200;
+  }
+
+  .ai-gradient-text {
+    background: linear-gradient(90deg, #e0f2fe 0%, #67e8f9 38%, #c4b5fd 76%, #ffffff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .ai-dashboard-card {
+    @apply relative overflow-hidden rounded-[32px] border border-cyan-300/20 bg-slate-900/70 text-white shadow-[0_0_80px_rgba(14,165,233,.18)] backdrop-blur-xl;
+  }
+
+  .ai-surface-card {
+    @apply rounded-2xl border border-white/10 bg-white/[.045] shadow-[0_18px_55px_rgba(2,6,23,.22)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-cyan-300/[.07] hover:shadow-[0_28px_75px_rgba(14,165,233,.16)];
+  }
+
+  .ai-primary-button {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-6 py-3 text-sm font-black text-slate-950 shadow-[0_14px_34px_rgba(34,211,238,.26)] transition duration-200 hover:-translate-y-0.5 hover:bg-cyan-200 hover:shadow-[0_18px_44px_rgba(34,211,238,.36)] focus:outline-none focus:ring-4 focus:ring-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .ai-secondary-button {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/[.12] bg-white/[.06] px-5 py-3 text-sm font-bold text-slate-100 transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[.1] focus:outline-none focus:ring-4 focus:ring-cyan-300/10 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ai-upload-zone {
+    @apply flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-[26px] border border-dashed border-cyan-300/35 bg-slate-950/60 p-8 text-center transition duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:bg-cyan-300/[.06] hover:shadow-[0_24px_70px_rgba(34,211,238,.14)];
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ai-primary-button,
+    .ai-secondary-button,
+    .ai-surface-card,
+    .ai-upload-zone {
+      transform: none !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

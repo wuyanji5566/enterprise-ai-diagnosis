@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.brandName,
-    template: `%s｜${siteConfig.brandName}`
+    template: `%s · ${siteConfig.brandName}`
   },
   description:
     "从企业AI诊断、样品验证到系统交付，帮助企业找到第一个真正能落地的AI应用场景。"

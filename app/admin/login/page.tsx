@@ -2,7 +2,7 @@
 
 import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock } from "@phosphor-icons/react/dist/ssr";
+import { Lock } from "@phosphor-icons/react";
 
 function LoginForm() {
   const router = useRouter();
@@ -41,26 +41,26 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-soft">
+      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[.055] p-8 shadow-[0_24px_80px_rgba(2,6,23,.28)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-soft text-brand">
-            <Lock size={20} weight="bold" />
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950 shadow-[0_14px_34px_rgba(34,211,238,.24)]">
+            <Lock size={21} weight="bold" />
           </span>
           <div>
-            <h1 className="text-lg font-bold text-ink">管理员登录</h1>
-            <p className="text-sm text-muted">企业AI数字工厂</p>
+            <h1 className="text-lg font-black text-white">管理员登录</h1>
+            <p className="text-sm text-slate-400">星宇AI数字工厂</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="password" className="field-label">
+            <label htmlFor="password" className="mb-2 block text-sm font-bold text-slate-200">
               管理密码
             </label>
             <input
               id="password"
               type="password"
-              className="field"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3.5 text-[15px] text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50 focus:ring-4 focus:ring-cyan-300/10"
               placeholder="请输入管理员密码"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -70,7 +70,7 @@ function LoginForm() {
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">
+            <p className="rounded-lg border border-red-300/20 bg-red-400/10 px-4 py-2.5 text-sm text-red-100">
               {error}
             </p>
           )}
@@ -78,15 +78,15 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading || !password.trim()}
-            className="primary-button w-full"
+            className="ai-primary-button w-full"
           >
-            {loading ? "验证中…" : "登录后台"}
+            {loading ? "验证中..." : "登录后台"}
           </button>
         </form>
       </div>
 
-      <p className="mt-6 text-center text-xs text-slate-400">
-        仅限管理员访问 · 企业AI数字工厂
+      <p className="mt-6 text-center text-xs text-slate-500">
+        仅限管理员访问 · 星宇AI数字工厂
       </p>
     </div>
   );
@@ -94,19 +94,28 @@ function LoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
-      <Suspense fallback={
-        <div className="w-full max-w-sm animate-pulse">
-          <div className="rounded-2xl border border-slate-200 bg-white p-8">
-            <div className="mb-6 h-10 w-10 rounded-xl bg-slate-100" />
-            <div className="h-6 w-32 rounded bg-slate-100" />
-            <div className="mt-4 h-12 rounded-xl bg-slate-50" />
-            <div className="mt-4 h-12 rounded-xl bg-slate-50" />
-          </div>
-        </div>
-      }>
-        <LoginForm />
-      </Suspense>
+    <div className="ai-page-bg relative flex min-h-screen items-center justify-center overflow-hidden px-5">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="ai-noise" />
+        <div className="ai-vignette" />
+        <div className="ai-grid-overlay" />
+      </div>
+      <div className="relative z-10 w-full">
+        <Suspense
+          fallback={
+            <div className="mx-auto w-full max-w-sm animate-pulse">
+              <div className="rounded-[28px] border border-white/10 bg-white/[.055] p-8">
+                <div className="mb-6 h-11 w-11 rounded-2xl bg-white/10" />
+                <div className="h-6 w-32 rounded bg-white/10" />
+                <div className="mt-4 h-12 rounded-xl bg-white/10" />
+                <div className="mt-4 h-12 rounded-xl bg-white/10" />
+              </div>
+            </div>
+          }
+        >
+          <LoginForm />
+        </Suspense>
+      </div>
     </div>
   );
 }

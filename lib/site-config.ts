@@ -1,5 +1,5 @@
 export const siteConfig = {
-  brandName: "企业AI数字工厂",
+  brandName: "星宇AI数字工厂",
   brandSubtitle: "从AI诊断到样品验证，再到系统交付",
   founderName: "伍老师",
   contact: {
