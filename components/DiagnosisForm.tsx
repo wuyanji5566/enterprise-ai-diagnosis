@@ -73,6 +73,29 @@ function normalizeYesNo(value: unknown): YesNo {
   return value === "是" ? "是" : "否";
 }
 
+function splitOptionLabel(option: string) {
+  const colonIndex = option.indexOf("：");
+  if (colonIndex > 0 && colonIndex <= 14) {
+    return {
+      title: option.slice(0, colonIndex),
+      detail: option.slice(colonIndex + 1)
+    };
+  }
+
+  const commaIndex = option.search(/[，。]/);
+  if (commaIndex > 0 && commaIndex <= 18) {
+    return {
+      title: option.slice(0, commaIndex),
+      detail: option.slice(commaIndex + 1)
+    };
+  }
+
+  return {
+    title: option,
+    detail: ""
+  };
+}
+
 function SelectField({
   label,
   value,
@@ -145,21 +168,30 @@ function OptionQuestion({
           columns === "three" ? "md:grid-cols-3" : "md:grid-cols-2"
         }`}
       >
-        {options.map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={value === option}
-            onClick={() => onChange(option)}
-            className={`min-h-16 rounded-2xl border px-4 py-3 text-left text-sm font-bold leading-6 transition ${
-              value === option
-                ? "border-cyan-300 bg-cyan-300 text-slate-950 shadow-[0_18px_44px_rgba(34,211,238,.18)]"
-                : "border-white/10 bg-white/[.055] text-slate-200 hover:border-cyan-300/30 hover:bg-white/[.08]"
-            }`}
-          >
-            {option}
-          </button>
-        ))}
+        {options.map((option) => {
+          const parsed = splitOptionLabel(option);
+          const selected = value === option;
+          return (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onChange(option)}
+              className={`min-h-16 rounded-2xl border px-4 py-3 text-left transition ${
+                selected
+                  ? "border-cyan-300 bg-cyan-300 text-slate-950 shadow-[0_18px_44px_rgba(34,211,238,.18)]"
+                  : "border-white/10 bg-white/[.055] text-slate-200 hover:border-cyan-300/30 hover:bg-white/[.08]"
+              }`}
+            >
+              <span className="block text-sm font-black leading-5">{parsed.title}</span>
+              {parsed.detail && (
+                <span className={`mt-1.5 block text-xs font-semibold leading-5 ${selected ? "text-slate-800" : "text-slate-400"}`}>
+                  {parsed.detail}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -335,6 +367,52 @@ export function DiagnosisForm() {
       form.aiPlan.biggestConcern
     ];
     return Math.round((values.filter(Boolean).length / values.length) * 100);
+  }, [form]);
+
+  const liveInsight = useMemo(() => {
+    const text = [
+      form.mainOffering,
+      ...Object.values(form.workflow),
+      form.salesSystem.biggestProblem,
+      ...form.marketingCapability.channels,
+      form.marketingCapability.upgradeGoal,
+      ...Object.values(form.costStructure),
+      form.aiPlan.primaryProblem,
+      form.aiPlan.biggestConcern
+    ].join(" ");
+
+    const scores = [
+      {
+        label: "AI营销增长",
+        keywords: ["获客", "营销", "短视频", "小红书", "视频号", "产品图", "案例", "素材", "内容", "客户看不懂"]
+      },
+      {
+        label: "效率自动化",
+        keywords: ["报表", "表格", "重复", "录入", "整理", "自动化", "人工", "出错"]
+      },
+      {
+        label: "企业知识库",
+        keywords: ["知识库", "问答", "客服", "售后", "话术", "资料", "标准内容库", "内容库"]
+      },
+      {
+        label: "业务系统MVP",
+        keywords: ["报价", "CRM", "项目管理", "合同", "回款", "看板", "小程序", "MVP", "系统"]
+      }
+    ].map((item) => ({
+      label: item.label,
+      score: item.keywords.reduce((total, keyword) => total + (text.includes(keyword) ? 1 : 0), 0)
+    }));
+
+    const best = scores.sort((a, b) => b.score - a.score)[0];
+    const label = best.score > 0 ? best.label : "等待更多选择";
+    const reasons = [
+      form.workflow.biggestBottleneck,
+      form.salesSystem.biggestProblem,
+      form.marketingCapability.upgradeGoal,
+      form.aiPlan.primaryProblem
+    ].filter(Boolean).slice(0, 3);
+
+    return { label, reasons };
   }, [form]);
 
   function validateStep(target: number): ValidationIssue | null {
@@ -535,6 +613,9 @@ export function DiagnosisForm() {
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-400">
                       {STEP_COPY[step][1]}
+                    </p>
+                    <p className="mt-3 rounded-xl border border-amber-200/15 bg-amber-200/[.06] px-4 py-3 text-xs font-semibold leading-5 text-amber-50/90">
+                      老板提示：不用选“最标准”的答案，选最接近你公司真实情况的一项，报告会更准。
                     </p>
                   </div>
 
@@ -806,6 +887,31 @@ export function DiagnosisForm() {
                           ]}
                           onChange={(value) => updateNested("aiPlan", "biggestConcern", value)}
                         />
+                        <div className="rounded-2xl border border-amber-200/20 bg-amber-200/[.075] p-5">
+                          <div className="flex items-start gap-3">
+                            <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl bg-amber-200/15 text-amber-100">
+                              <Sparkle size={19} weight="fill" />
+                            </span>
+                            <div>
+                              <p className="text-sm font-black text-white">生成后你会先看到免费预览，解锁后获得完整报告</p>
+                              <div className="mt-4 grid gap-2 text-sm leading-6 text-slate-200 sm:grid-cols-2">
+                                {[
+                                  "企业AI成熟度评分",
+                                  "最适合切入的第一个AI项目",
+                                  "TOP3项目优先级和预算区间",
+                                  "不建议现在做的伪需求提醒",
+                                  "7/30/90天行动路线",
+                                  "ROI与回本周期判断"
+                                ].map((item) => (
+                                  <span key={item} className="flex items-center gap-2">
+                                    <CheckCircle size={15} className="text-amber-100" weight="fill" />
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-5 text-xs leading-6 text-slate-400">
                           <p className="font-black text-slate-200">诊断服务授权与免责声明</p>
                           <p className="mt-2">
@@ -936,6 +1042,24 @@ export function DiagnosisForm() {
 
         <aside className="h-fit rounded-[28px] border border-white/10 bg-white/[.045] p-6 shadow-[0_24px_80px_rgba(2,6,23,.2)] backdrop-blur lg:sticky lg:top-[96px]">
           <div className="space-y-7">
+            <div className="rounded-2xl border border-amber-200/20 bg-amber-200/[.07] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-100/80">LIVE SIGNAL</p>
+              <p className="mt-3 text-sm font-black text-white">当前初步倾向</p>
+              <p className="mt-2 text-2xl font-black tracking-tight text-amber-100">{liveInsight.label}</p>
+              <div className="mt-4 space-y-2">
+                {liveInsight.reasons.length > 0 ? (
+                  liveInsight.reasons.map((reason) => (
+                    <p key={reason} className="rounded-xl border border-white/10 bg-slate-950/35 px-3 py-2 text-xs leading-5 text-slate-300">
+                      {reason}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-xs leading-5 text-slate-400">
+                    完成前两步后，这里会根据你的选择显示更接近的AI落地方向。
+                  </p>
+                )}
+              </div>
+            </div>
             <div>
               <p className="text-sm font-black text-white">保存状态</p>
               <div className="mt-4 flex items-start gap-3">
