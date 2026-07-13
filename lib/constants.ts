@@ -63,6 +63,14 @@ export const EMPTY_QUESTIONNAIRE: QuestionnaireData = {
     mvpAccepted: "接受",
     biggestConcern: "",
     dataConsent: "否"
+  },
+  stepNotes: {
+    basic: "",
+    workflow: "",
+    sales: "",
+    marketing: "",
+    cost: "",
+    aiPlan: ""
   }
 };
 

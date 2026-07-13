@@ -47,8 +47,16 @@ const questionnaireFieldLabels: Record<string, string> = {
   "aiPlan.budget": "第一阶段预算区间",
   "aiPlan.mvpAccepted": "是否接受先做MVP样品验证",
   "aiPlan.biggestConcern": "对AI最大的担心",
-  "aiPlan.dataConsent": "诊断服务授权"
+  "aiPlan.dataConsent": "诊断服务授权",
+  "stepNotes.basic": "企业基本情况补充",
+  "stepNotes.workflow": "业务流程补充",
+  "stepNotes.sales": "销售系统补充",
+  "stepNotes.marketing": "营销能力补充",
+  "stepNotes.cost": "成本重复工作补充",
+  "stepNotes.aiPlan": "AI目标预算补充"
 };
+
+const optionalNote = z.string().trim().max(500).default("");
 
 const questionnaireSchema = z.object({
   companyName: z.string().trim().min(2).max(120),
@@ -102,6 +110,21 @@ const questionnaireSchema = z.object({
     mvpAccepted: mvpPreference,
     biggestConcern: z.string().trim().min(5).max(1000),
     dataConsent: yesNo
+  }),
+  stepNotes: z.object({
+    basic: optionalNote,
+    workflow: optionalNote,
+    sales: optionalNote,
+    marketing: optionalNote,
+    cost: optionalNote,
+    aiPlan: optionalNote
+  }).default({
+    basic: "",
+    workflow: "",
+    sales: "",
+    marketing: "",
+    cost: "",
+    aiPlan: ""
   })
 });
 
@@ -278,6 +301,7 @@ export async function POST(request: Request) {
               "不要返回 Markdown 代码块，不要返回解释文字，不要把报告包在 report/data/result 字段里。",
               "JSON 顶层必须直接包含 schema.required 里的所有字段。",
               "每一份报告必须高度差异化：所有评分、TOP3项目、ROI、风险、样品验证建议、推荐服务包和销售跟进判断，都必须直接引用问卷里的行业、主营业务、获客方式、销售问题、交付流程、成本痛点、预算、周期和顾虑。",
+              "如果企业问卷里的 stepNotes 有内容，这些是企业主补充的一手真实情况，必须优先引用并用于修正报告判断，不能忽略。",
               "reportMarkdown 必须是一份完整中文咨询报告，建议 1800-3000 字，包含：企业现状摘要、核心判断、成熟度评分解释、业务流程拆解、TOP3项目详细执行步骤、7/30/90天路线、ROI假设、暂不建议事项、推荐服务包、下一步成交建议。",
               "为了方便后期转化，businessConclusion 要写成可用于销售开场的一句话；clientFitReason 要说明为什么值得跟进或为什么暂缓；salesInsight.bestConversionPath 必须给出最适合销售转化的路径。",
               "salesInsight.nextAction 必须从 免费沟通、深度诊断、样品验证、正式报价、暂不跟进 中选择一个。",

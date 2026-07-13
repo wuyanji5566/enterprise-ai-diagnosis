@@ -56,6 +56,14 @@ export interface QuestionnaireData {
     biggestConcern: string;
     dataConsent: YesNo;
   };
+  stepNotes: {
+    basic: string;
+    workflow: string;
+    sales: string;
+    marketing: string;
+    cost: string;
+    aiPlan: string;
+  };
 }
 
 export interface WorkflowAnalysis {

@@ -51,6 +51,17 @@ const STEP_COPY = [
   ["AI目标与预算", "明确第一个AI项目的方向、预算、周期和主要顾虑。"]
 ];
 
+const STEP_NOTE_FIELDS = ["basic", "workflow", "sales", "marketing", "cost", "aiPlan"] as const;
+
+const STEP_NOTE_PROMPTS = [
+  "例如：公司主要卖什么、客户是谁、最近最想增长哪块业务。",
+  "例如：最近一个真实客户从咨询到成交，中间卡在哪一步。",
+  "例如：销售现在最缺资料、话术、案例、报价模板，还是跟进机制。",
+  "例如：现在最想做产品图、短视频、案例页，还是内容库。",
+  "例如：每周最浪费时间的一件重复工作，通常谁在做。",
+  "例如：如果先做一个AI样品，你最希望它帮你证明什么。"
+];
+
 type ValidationIssue = {
   step: number;
   message: string;
@@ -149,6 +160,32 @@ function InputField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
       />
+    </label>
+  );
+}
+
+function OptionalNoteField({
+  value,
+  placeholder,
+  onChange
+}: {
+  value: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block rounded-2xl border border-amber-200/15 bg-amber-200/[.055] p-4">
+      <span className="block text-sm font-black text-amber-50">
+        补充一句真实情况 <span className="font-semibold text-amber-100/60">可不填，但会让报告更精准</span>
+      </span>
+      <textarea
+        className="mt-3 min-h-24 w-full resize-y rounded-xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-amber-200/45 focus:ring-4 focus:ring-amber-200/10"
+        value={value}
+        maxLength={500}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+      />
+      <span className="mt-2 block text-right text-xs text-slate-500">{value.length} / 500</span>
     </label>
   );
 }
@@ -268,7 +305,8 @@ function migrateLegacyForm(value: unknown): QuestionnaireData {
             ? "不确定"
             : "接受",
       dataConsent: normalizeYesNo(legacy.aiPlan?.dataConsent)
-    }
+    },
+    stepNotes: { ...EMPTY_QUESTIONNAIRE.stepNotes, ...legacy.stepNotes }
   } as QuestionnaireData;
 }
 
@@ -342,6 +380,20 @@ export function DiagnosisForm() {
     []
   );
 
+  const updateStepNote = useCallback(
+    (key: (typeof STEP_NOTE_FIELDS)[number], value: string) => {
+      setForm((current) => ({
+        ...current,
+        stepNotes: {
+          ...current.stepNotes,
+          [key]: value
+        }
+      }));
+      setError("");
+    },
+    []
+  );
+
   const completion = useMemo(() => {
     const values = [
       form.companyName,
@@ -378,7 +430,8 @@ export function DiagnosisForm() {
       form.marketingCapability.upgradeGoal,
       ...Object.values(form.costStructure),
       form.aiPlan.primaryProblem,
-      form.aiPlan.biggestConcern
+      form.aiPlan.biggestConcern,
+      ...Object.values(form.stepNotes)
     ].join(" ");
 
     const scores = [
@@ -409,7 +462,8 @@ export function DiagnosisForm() {
       form.workflow.biggestBottleneck,
       form.salesSystem.biggestProblem,
       form.marketingCapability.upgradeGoal,
-      form.aiPlan.primaryProblem
+      form.aiPlan.primaryProblem,
+      ...Object.values(form.stepNotes)
     ].filter(Boolean).slice(0, 3);
 
     return { label, reasons };
@@ -935,6 +989,12 @@ export function DiagnosisForm() {
                         </div>
                       </>
                     )}
+
+                    <OptionalNoteField
+                      value={form.stepNotes[STEP_NOTE_FIELDS[step]]}
+                      placeholder={STEP_NOTE_PROMPTS[step]}
+                      onChange={(value) => updateStepNote(STEP_NOTE_FIELDS[step], value)}
+                    />
                   </div>
 
                   {error && (
