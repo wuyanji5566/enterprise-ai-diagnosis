@@ -56,7 +56,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/[.88] text-white backdrop-blur-xl">
+      <header className="ai-lux-header sticky top-0 z-50 text-white backdrop-blur-xl">
         <div className="page-shell flex h-[72px] items-center justify-between">
           <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
             <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-cyan-300 via-blue-500 to-violet-500 text-white shadow-[0_0_24px_rgba(56,189,248,.32)]">
@@ -66,7 +66,7 @@ export function SiteHeader() {
               <span className="block text-[15px] font-black tracking-tight text-white sm:text-base">
                 {siteConfig.brandName}
               </span>
-              <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200/70 sm:block">
+              <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-amber-100/70 sm:block">
                 AI Delivery System
               </span>
             </span>
@@ -82,7 +82,7 @@ export function SiteHeader() {
                   className={cn(
                     "rounded-lg px-3.5 py-2 text-sm font-semibold transition",
                     active
-                      ? "bg-white/10 text-cyan-100"
+                      ? "bg-amber-100/10 text-amber-100 ring-1 ring-amber-100/15"
                       : "text-slate-300 hover:bg-white/[.08] hover:text-white"
                   )}
                 >

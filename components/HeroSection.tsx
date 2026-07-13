@@ -55,7 +55,7 @@ export function HeroSection() {
       </div>
 
       <div className="page-shell relative z-10 grid min-h-[calc(100vh-72px)] items-center gap-12 py-12 lg:grid-cols-[.9fr_1.1fr] lg:py-16">
-        <div className="mx-auto max-w-3xl text-center lg:mx-0 lg:text-left">
+        <div className="ai-reveal mx-auto max-w-3xl text-center lg:mx-0 lg:text-left">
           <div className="ai-eyebrow mx-auto lg:mx-0">
             <Sparkle size={15} weight="fill" />
             AI DELIVERY OPERATING SYSTEM
@@ -118,14 +118,14 @@ export function HeroSection() {
         </div>
 
         <div className="relative">
-          <div className="ai-dashboard-card">
+          <div className="ai-dashboard-card ai-float">
             <div className="grid gap-5 border-b border-white/10 p-5 sm:grid-cols-[230px_1fr] sm:p-6">
               <div className="rounded-3xl border border-white/10 bg-white/[.045] p-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200/80">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-100/80">
                     Project Radar
                   </p>
-                  <span className="size-2.5 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,.85)]" />
+                  <span className="size-2.5 rounded-full bg-amber-200 shadow-[0_0_18px_rgba(218,197,129,.75)]" />
                 </div>
                 <div className="mt-5 grid gap-2">
                   {projectDirections.map((item) => (
@@ -155,7 +155,7 @@ export function HeroSection() {
                       AI Maturity Score
                     </p>
                     <div className="mt-3 flex items-end gap-3">
-                      <span className="text-6xl font-black tracking-[-0.06em] text-cyan-200">
+                      <span className="text-6xl font-black tracking-[-0.06em] text-amber-100">
                         B+
                       </span>
                       <span className="pb-2 text-sm font-bold text-slate-400">76 / 100</span>
