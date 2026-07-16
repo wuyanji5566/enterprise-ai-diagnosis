@@ -65,8 +65,9 @@ npm run render-start
 生产环境必须配置：
 
 ```env
-OPENAI_API_KEY=你的真实OpenAI API Key
-OPENAI_MODEL=gpt-5-mini
+DEEPSEEK_API_KEY=你的真实DeepSeek API Key
+DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 TURSO_DATABASE_URL=你的Turso数据库地址
 TURSO_AUTH_TOKEN=你的Turso数据库Token
 ADMIN_PASSWORD=你的后台强密码
@@ -93,13 +94,14 @@ DATABASE_MODE=local
 
 1. 打开 `/api/health`，确认 `ok: true`。
 2. 打开首页 `/`。
-3. 打开 `/diagnosis`，完整填写问卷并生成报告。
-4. 确认结果页只显示预览和报告编号。
+3. 打开 `/diagnosis`，完整填写问卷并提交。
+4. 确认提交后立即跳转至 `/diagnosis-status` 微信顾问确认等待页（不调用 AI）。
 5. 打开 `/admin`，使用后台密码登录。
-6. 在“报告收款与解锁”中找到刚生成的报告。
-7. 点击确认收款并解锁。
-8. 回到客户结果页，刷新解锁状态，确认完整报告可查看。
+6. 在”诊断请求队列”中找到刚提交的待确认请求（状态：待确认）。
+7. 点击确认，服务端调用 DeepSeek 生成完整报告。
+8. 回到客户等待页，确认自动跳转至 `/result` 并展示完整报告。
 9. 测试 PDF 打印/保存。
+10. 测试失败重试：如果 AI 生成失败，请求状态变为”失败”，管理员可在后台重试。
 
 ## 6. 常见错误
 
@@ -107,17 +109,18 @@ DATABASE_MODE=local
 
 优先检查：
 
-- `OPENAI_API_KEY` 是否配置到 Render。
-- Render 服务是否能访问 OpenAI API。
-- `OPENAI_MODEL` 是否填写为当前可用模型。
+- `DEEPSEEK_API_KEY` 是否配置到 Render。
+- Render 服务是否能访问 DeepSeek API。
+- `DEEPSEEK_MODEL` 是否填写为当前可用模型（如 `deepseek-v4-flash`）。
 
-### 后台没有报告
+### 后台没有请求或报告
 
 优先检查：
 
 - Render 是否配置了 `TURSO_DATABASE_URL`。
 - Render 是否配置了 `TURSO_AUTH_TOKEN`。
 - 是否误配置了 `DATABASE_MODE=local`。
+- 确认诊断请求状态是否为"待确认"（pending_contact），管理员需点击确认才触发 AI 生成。
 
 ### 页面能打开，但 API 报错
 

@@ -182,6 +182,18 @@ export function ResultReport({ report }: { report: DiagnosisReport }) {
           </div>
         </section>
 
+        {report.executiveSummary && (
+          <section className="mt-7 overflow-hidden rounded-3xl border border-blue-200 bg-white shadow-[0_20px_60px_rgba(37,99,235,.08)]">
+            <div className="border-b border-blue-100 bg-blue-50/70 px-7 py-5 sm:px-9">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-brand">EXECUTIVE BRIEF</p>
+              <h2 className="mt-2 text-xl font-black text-ink">给企业负责人的决策摘要</h2>
+            </div>
+            <p className="px-7 py-7 text-base font-semibold leading-8 text-slate-700 sm:px-9 sm:py-8">
+              {report.executiveSummary}
+            </p>
+          </section>
+        )}
+
         <section className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-7 sm:p-8">
           <div className="flex items-start gap-4">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700">
@@ -309,6 +321,15 @@ export function ResultReport({ report }: { report: DiagnosisReport }) {
                 <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-800">
                   <strong>样品验证：</strong>
                   {project.sampleValidationSuggestion}
+                </div>
+                <div className="mt-4 rounded-xl border border-violet-100 bg-violet-50 p-4 text-xs leading-5 text-violet-800">
+                  <p><strong>建议负责人：</strong>{project.suggestedOwner || "由业务负责人牵头，销售/运营共同参与。"}</p>
+                  <p className="mt-2 font-bold">验收指标</p>
+                  <ul className="mt-1 space-y-1">
+                    {(project.acceptanceMetrics?.length ? project.acceptanceMetrics : ["明确样品使用范围与责任人", "以业务效率或转化指标完成首轮验证"]).map((metric) => (
+                      <li key={metric}>· {metric}</li>
+                    ))}
+                  </ul>
                 </div>
               </article>
             ))}

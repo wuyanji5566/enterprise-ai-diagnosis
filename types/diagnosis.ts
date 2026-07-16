@@ -101,6 +101,8 @@ export interface AIProject {
   recommendedBudget: string;
   risk: string;
   sampleValidationSuggestion: string;
+  suggestedOwner?: string;
+  acceptanceMetrics?: string[];
 }
 
 export interface ROIAnalysis {
@@ -139,6 +141,7 @@ export interface DiagnosisReport {
   companyName: string;
   maturityScore: number;
   maturityLevel: string;
+  executiveSummary?: string;
   businessConclusion: string;
   clientFitLevel: string;
   clientFitReason: string;
@@ -165,6 +168,7 @@ export interface DiagnosisReportPreview {
 export interface DiagnoseResponse {
   /** @deprecated 新流程不会向浏览器返回完整报告。 */
   report?: DiagnosisReport;
+  requestId?: string;
   reportId?: string;
   accessToken?: string;
   preview?: DiagnosisReportPreview;

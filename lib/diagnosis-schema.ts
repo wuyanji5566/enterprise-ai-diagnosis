@@ -4,6 +4,7 @@ export const diagnosisJsonSchema = {
   required: [
     "maturityScore",
     "maturityLevel",
+    "executiveSummary",
     "businessConclusion",
     "clientFitLevel",
     "clientFitReason",
@@ -20,6 +21,7 @@ export const diagnosisJsonSchema = {
   properties: {
     maturityScore: { type: "integer", minimum: 0, maximum: 100 },
     maturityLevel: { type: "string" },
+    executiveSummary: { type: "string", minLength: 120 },
     businessConclusion: { type: "string" },
     clientFitLevel: { type: "string" },
     clientFitReason: { type: "string" },
@@ -90,6 +92,8 @@ export const diagnosisJsonSchema = {
           "recommendedBudget",
           "risk",
           "sampleValidationSuggestion"
+          ,"suggestedOwner"
+          ,"acceptanceMetrics"
         ],
         properties: {
           name: { type: "string" },
@@ -107,6 +111,13 @@ export const diagnosisJsonSchema = {
           recommendedBudget: { type: "string" },
           risk: { type: "string" },
           sampleValidationSuggestion: { type: "string" }
+          ,suggestedOwner: { type: "string" }
+          ,acceptanceMetrics: {
+            type: "array",
+            minItems: 2,
+            maxItems: 5,
+            items: { type: "string" }
+          }
         }
       }
     },

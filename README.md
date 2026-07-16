@@ -1,15 +1,15 @@
 # 企业AI数字工厂
 
-基于 Next.js 15、TypeScript、Tailwind CSS、OpenAI Responses API 和 Turso 的企业AI诊断与商业转化系统。
+基于 Next.js 15、TypeScript、Tailwind CSS、DeepSeek API 和 Turso 的企业AI诊断与商业转化系统。
 
 ## 正式业务流程
 
-1. 客户完成六步企业问卷。
-2. `/api/diagnose` 调用 OpenAI 生成结构化报告。
-3. 完整报告只保存到服务端数据库，浏览器仅收到评分预览、报告编号和随机访问凭证。
-4. 客户添加微信并发送报告编号，支付99元。
-5. 管理员登录 `/admin`，在“报告收款与解锁”中确认收款。
-6. 客户在 `/result` 刷新状态，查看完整报告并生成PDF。
+1. 客户完成六步企业问卷并提交。
+2. 问卷数据仅保存为待确认请求，**不调用 AI**，客户立即进入微信顾问确认等待页。
+3. 等待页展示微信二维码、诊断编号和自动跳转说明，每 5 秒轮询状态。
+4. 管理员登录 `/admin`，在”诊断请求队列”中查看待确认项并点击确认。
+5. 确认后服务端调用 DeepSeek 生成完整报告，写入 `reports` 表，状态变为已解锁。
+6. 客户等待页检测到解锁状态后自动跳转 `/result`，查看完整报告并生成 PDF。
 
 ## 本地运行
 
@@ -23,6 +23,7 @@ npm run dev -- -p 3010
 
 - 首页：http://localhost:3010
 - 诊断：http://localhost:3010/diagnosis
+- 等待确认：http://localhost:3010/diagnosis-status
 - 结果：http://localhost:3010/result
 - 后台：http://localhost:3010/admin
 - 健康检查：http://localhost:3010/api/health
@@ -103,8 +104,11 @@ https://你的域名/api/health
 
 ## 安全说明
 
-- 完整报告不会在付款前返回浏览器。
+- 用户提交问卷时仅保存待确认请求，不调用 AI，避免资源浪费和滥用。
+- 访问令牌仅保存 SHA-256 哈希，原始令牌绝不落库。
+- AI 生成仅在管理员确认后触发，失败保留问卷并允许后台重试。
+- 完整报告不会在管理员确认前返回浏览器。
 - 客户报告接口需要随机访问凭证，并且只有管理员确认后才返回完整内容。
 - 管理后台使用 HttpOnly、SameSite Cookie。
 - 诊断、线索提交和后台登录均有限流。
-- OpenAI API Key、数据库 Token 和管理密码仅存放在服务端环境变量中。
+- DeepSeek API Key、数据库 Token 和管理密码仅存放在服务端环境变量中。

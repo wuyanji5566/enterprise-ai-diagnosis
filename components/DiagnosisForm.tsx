@@ -320,10 +320,10 @@ export function DiagnosisForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showPaywall, setShowPaywall] = useState(false);
-  const [generatedPreview, setGeneratedPreview] =
+  const [generatedPreview] =
     useState<DiagnosisReportPreview | null>(null);
-  const [generatedReportId, setGeneratedReportId] = useState("");
-  const [generatedAccessToken, setGeneratedAccessToken] = useState("");
+  const [generatedReportId] = useState("");
+  const [generatedAccessToken] = useState("");
   const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
@@ -555,13 +555,14 @@ export function DiagnosisForm() {
         ...form,
         aiPlan: { ...form.aiPlan, dataConsent: agreed ? "是" as const : "否" as const }
       };
-      const response = await fetch("/api/diagnose", {
+      const response = await fetch("/api/diagnosis-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData)
       });
       const data = (await response.json()) as DiagnoseResponse;
-      if (!response.ok || !data.reportId || !data.accessToken || !data.preview) {
+      const requestData = data as DiagnoseResponse & { requestId?: string };
+      if (!response.ok || !requestData.requestId || !requestData.accessToken) {
         throw new Error(
           data.details
             ? `${data.error || "问卷数据校验失败"}：${data.details}`
@@ -570,13 +571,9 @@ export function DiagnosisForm() {
       }
       window.localStorage.setItem(STORAGE_KEYS.questionnaire, JSON.stringify(form));
       window.localStorage.removeItem(STORAGE_KEYS.report);
-      window.localStorage.setItem(STORAGE_KEYS.reportId, data.reportId);
-      window.localStorage.setItem(STORAGE_KEYS.reportAccessToken, data.accessToken);
-      window.localStorage.setItem(STORAGE_KEYS.reportType, "free");
-      setGeneratedReportId(data.reportId);
-      setGeneratedAccessToken(data.accessToken);
-      setGeneratedPreview(data.preview);
-      setShowPaywall(true);
+      router.push(
+        `/diagnosis-status?id=${encodeURIComponent(requestData.requestId)}&token=${encodeURIComponent(requestData.accessToken)}`
+      );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "诊断生成失败，请稍后重试。");
     } finally {

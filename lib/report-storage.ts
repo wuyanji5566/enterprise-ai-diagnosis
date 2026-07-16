@@ -274,6 +274,20 @@ export async function unlockReport(id: string): Promise<boolean> {
   return Number(result.rowsAffected) > 0;
 }
 
+export async function unlockReportWithAccessHash(
+  id: string,
+  accessTokenHash: string
+): Promise<boolean> {
+  await ensureReportSchema();
+  const result = await getDb().execute({
+    sql: `UPDATE reports
+          SET status = 'unlocked', report_type = 'paid99', unlocked_at = ?, access_token_hash = ?
+          WHERE id = ?`,
+    args: [new Date().toISOString(), accessTokenHash, id]
+  });
+  return Number(result.rowsAffected) > 0;
+}
+
 export async function deleteReport(id: string): Promise<boolean> {
   await ensureReportSchema();
   const result = await getDb().execute({

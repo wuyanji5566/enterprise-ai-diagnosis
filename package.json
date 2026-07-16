@@ -10,6 +10,8 @@
     "build": "next build",
     "start": "next start",
     "render-start": "next start -p $PORT",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
@@ -33,7 +35,8 @@
     "eslint-config-next": "^15.5.19",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.7"
   },
   "overrides": {
     "next": {

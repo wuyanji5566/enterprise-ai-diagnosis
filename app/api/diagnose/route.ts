@@ -192,6 +192,7 @@ function validateReportPayload(report: Record<string, unknown>) {
   const requiredFields = [
     "maturityScore",
     "maturityLevel",
+    "executiveSummary",
     "businessConclusion",
     "clientFitLevel",
     "clientFitReason",
@@ -209,6 +210,19 @@ function validateReportPayload(report: Record<string, unknown>) {
   if (typeof report.maturityScore !== "number") throw new Error("AI report maturityScore must be a number.");
   if (!Array.isArray(report.topProjects) || report.topProjects.length < 3) {
     throw new Error("AI report topProjects must include at least 3 items.");
+  }
+  if (typeof report.executiveSummary !== "string" || report.executiveSummary.trim().length < 80) {
+    throw new Error("AI report executiveSummary is missing or too short.");
+  }
+  if (
+    !(report.topProjects as Array<Record<string, unknown>>).every(
+      (project) =>
+        typeof project.suggestedOwner === "string" &&
+        Array.isArray(project.acceptanceMetrics) &&
+        project.acceptanceMetrics.length >= 2
+    )
+  ) {
+    throw new Error("AI report topProjects must include owners and acceptance metrics.");
   }
   if (!Array.isArray(report.opportunityMatrix) || report.opportunityMatrix.length < 3) {
     throw new Error("AI report opportunityMatrix must include at least 3 items.");
